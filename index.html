@@ -1,0 +1,421 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Home or Bart Classifier</title>
+</head>
+<body>
+    <h2>Upload an Image to Classify</h2>
+    <form action="/predict" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*">
+        <input type="submit" value="Predict">
+    </form>
+
+    {% if prediction %}
+        <h3>Prediction: {{ prediction }}</h3>
+        <img src="{{ url_for('static', filename='uploads/' + filename) }}" width="300">
+    {% endif %}
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home or Bart Classifier</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .upload-section {
+            margin-bottom: 40px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .file-input-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .file-name {
+            margin-top: 15px;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .predict-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .predict-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .predict-button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .reset-button {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(116, 185, 255, 0.4);
+        }
+
+        .reset-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(116, 185, 255, 0.6);
+        }
+
+        .result-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px dashed #e9ecef;
+        }
+
+        .prediction-result {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            font-size: 1.3em;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(116, 185, 255, 0.3);
+        }
+
+        .prediction-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .prediction-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .uploaded-image {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 100%;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .uploaded-image:hover {
+            transform: scale(1.02);
+        }
+
+        .loading {
+            display: none;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .drag-drop-area {
+            border: 2px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 20px 0;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .drag-drop-area.dragover {
+            border-color: #ff6b6b;
+            background: #fff5f5;
+            transform: scale(1.02);
+        }
+
+        .drag-drop-text {
+            color: #667eea;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .drag-drop-subtext {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .file-input-button, .predict-button {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+            
+            .reset-button {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 Home or Bart Classifier</h1>
+        <p class="subtitle">Upload an image and let AI determine what it is!</p>
+        
+        <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data">
+            <div class="upload-section">
+                <div class="drag-drop-area" id="dragDropArea">
+                    <div class="drag-drop-text">📁 Choose an image file</div>
+                    <div class="drag-drop-subtext">or drag and drop it here</div>
+                </div>
+                
+                <div class="file-input-wrapper">
+                    <input type="file" name="file" accept="image/*" class="file-input" id="fileInput" required>
+                    <button type="button" class="file-input-button" id="browseButton">
+                        📸 Browse Files
+                    </button>
+                </div>
+                
+                <div id="fileName" class="file-name" style="display: none;"></div>
+                
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button type="submit" class="predict-button" id="predictButton" disabled>
+                        🔍 Analyze Image
+                    </button>
+                    <button type="button" class="reset-button" id="resetButton" style="display: none;">
+                        🔄 Reset
+                    </button>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    Processing your image...
+                </div>
+            </div>
+        </form>
+        
+        {% if prediction %}
+        <div class="result-section">
+            <div class="prediction-result">
+                <div class="prediction-label">Classification Result:</div>
+                <div class="prediction-value">{{ prediction }}</div>
+            </div>
+            <img src="{{ url_for('static', filename='uploads/' + filename) }}" 
+                 class="uploaded-image" 
+                 alt="Uploaded image"
+                 width="300">
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const predictButton = document.getElementById('predictButton');
+        const resetButton = document.getElementById('resetButton');
+        const browseButton = document.getElementById('browseButton');
+        const uploadForm = document.getElementById('uploadForm');
+        const loading = document.getElementById('loading');
+        const dragDropArea = document.getElementById('dragDropArea');
+
+        // Browse button click handler
+        browseButton.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // File input change handler
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                const file = this.files[0];
+                fileName.textContent = `Selected: ${file.name}`;
+                fileName.style.display = 'block';
+                predictButton.disabled = false;
+                resetButton.style.display = 'inline-block';
+            }
+        });
+
+        // Reset button handler
+        resetButton.addEventListener('click', function() {
+            fileInput.value = '';
+            fileName.style.display = 'none';
+            predictButton.disabled = true;
+            resetButton.style.display = 'none';
+            loading.classList.remove('show');
+            predictButton.textContent = '🔍 Analyze Image';
+            
+            // Hide any previous results
+            const resultSection = document.querySelector('.result-section');
+            if (resultSection) {
+                resultSection.style.display = 'none';
+            }
+        });
+
+        // Form submit handler
+        uploadForm.addEventListener('submit', function() {
+            loading.classList.add('show');
+            predictButton.disabled = true;
+            predictButton.textContent = 'Processing...';
+        });
+
+        // Drag and drop functionality
+        dragDropArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dragDropArea.classList.add('dragover');
+        });
+
+        dragDropArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            dragDropArea.classList.remove('dragover');
+        });
+
+        dragDropArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dragDropArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                fileInput.files = files;
+                const event = new Event('change', { bubbles: true });
+                fileInput.dispatchEvent(event);
+            }
+        });
+
+        // Click on drag area to trigger file input
+        dragDropArea.addEventListener('click', function(e) {
+            // Only trigger if not clicking on the browse button
+            if (e.target === dragDropArea || dragDropArea.contains(e.target)) {
+                fileInput.click();
+            }
+        });
+    </script>
+</body>
+</html>
