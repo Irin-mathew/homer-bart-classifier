@@ -63,9 +63,8 @@ model.export('model.pkl')
 
 ```
 homer-bart-classifier/
-├── 🧠 model.pkl                    # Trained ResNet-50 model
 ├── 🌐 app.py                       # Flask web application  
-├── 📊 training_notebook.ipynb      # Model training code
+├── 📊 Copy of FatstAI.ipynb       # Model training code
 ├── 🎨 templates/index.html         # Modern web interface
 ├── 📦 requirements.txt             # Dependencies
 └── 📁 static/uploads/              # Image storage
@@ -75,7 +74,7 @@ homer-bart-classifier/
 
 ```bash
 # Clone & Setup
-git clone https://github.com/yourusername/homer-bart-classifier.git
+git clone https://github.com/Irin-mathew/homer-bart-classifier.git
 cd homer-bart-classifier
 pip install -r requirements.txt
 
@@ -161,4 +160,4 @@ pip install fastai>=2.7.0 flask>=2.0.0 torch>=1.9.0
 
 **⭐ Star this repo if you found it helpful!** 
 
-**📬 Questions?** Open an issue or contact [@yourusername](https://github.com/yourusername)
+**📬 Questions?** Open an issue or contact [irinmathew264@gmail.com](https://github.com/Irin-mathew) 
